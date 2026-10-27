@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fill BoBoiBoy’s Lunchbox!</title>
+<style>
+:root{--ink:#16324a;--green:#2e9e4f;--green-d:#1b6e36;--orange:#f08a1c;--orange-d:#a85500;--yellow:#ffd23f;--turq:#12a8a0;--blue:#1f78c8}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;font-size:clamp(13px,2.1vh,26px);line-height:1.3;color:var(--ink);overflow:hidden;background:linear-gradient(#10124a 0%,#3a1c7a 38%,#c2417a 62%,#ff8a1f 82%,#2a1a3f 82.1%,#160f2b 100%)}
+h1,h2,h3,p{margin:0}
+button{font:inherit;font-weight:800;cursor:pointer;border:0;border-radius:999px;padding:.5em 1.1em;color:#fff;background:var(--blue);box-shadow:0 .2em 0 rgba(0,0,0,.25);transition:transform .1s}
+button:hover:not(:disabled){transform:translateY(-2px)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,.card:focus-visible,.comp:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+.hidden{display:none!important}
+/* scenery */
+.sky{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.sun{position:absolute;top:4vh;right:6vw;width:16vh;height:16vh;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffd36b,#ff8a1f 60%,#b8430a);box-shadow:0 0 5vh 1vh rgba(255,138,31,.55)}.sun:after{content:"";position:absolute;left:-30%;right:-30%;top:42%;height:16%;border-radius:50%;border:.5vh solid rgba(255,226,122,.7);transform:rotate(-18deg)}
+.star{position:absolute;width:.6vh;height:.6vh;border-radius:50%;background:#fff;box-shadow:0 0 1vh .3vh rgba(255,255,255,.8);animation:tw 3s ease-in-out infinite}@keyframes tw{50%{opacity:.25}}
+.orb{position:absolute;width:9vh;height:9vh;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:4.6vh;border:.4vh solid rgba(255,255,255,.7);animation:flo 5s ease-in-out infinite}@keyframes flo{50%{transform:translateY(-2.5vh)}}
+.ridge{position:absolute;left:0;right:0;bottom:17.5vh;height:9vh;background:#2a1a3f;clip-path:polygon(0 100%,0 60%,8% 30%,16% 65%,26% 20%,38% 70%,50% 35%,62% 75%,74% 25%,86% 65%,94% 40%,100% 70%,100% 100%)}
+.cloud{position:absolute;width:16vh;height:5vh;background:#fff;border-radius:5vh;box-shadow:0 0 0 .2vh rgba(0,0,0,.03);animation:drift 60s linear infinite}
+.cloud:before,.cloud:after{content:"";position:absolute;background:#fff;border-radius:50%}
+.cloud:before{width:7vh;height:7vh;left:2vh;top:-3.5vh}.cloud:after{width:5vh;height:5vh;right:2vh;top:-2.5vh}
+@keyframes drift{from{transform:translateX(-25vw)}to{transform:translateX(120vw)}}
+.deco{position:absolute;font-size:4.5vh;opacity:.95}
+/* layout */
+#app{position:relative;z-index:1;height:100vh;height:100dvh;min-height:0;overflow:hidden;display:grid;grid-template-rows:auto 1fr auto auto;gap:.5em;padding:.6em 1.2em}
+.head{display:flex;flex-wrap:wrap;gap:.6em 1.2em;align-items:center;justify-content:space-between}
+.head h1{font-size:2em;color:#fff;text-shadow:0 .1em 0 #b8430a,0 0 .5em rgba(255,138,31,.7)}
+.head p{background:rgba(255,255,255,.9);border-radius:999px;padding:.25em .9em;font-weight:700}
+.prog{background:#fff;border:.18em solid var(--turq);border-radius:999px;padding:.2em .9em;font-weight:900;min-width:12em;text-align:center}
+.prog i{display:block;height:.45em;margin-top:.15em;border-radius:9px;background:#d6f2ef;overflow:hidden;position:relative}
+.prog i b{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,var(--green),var(--yellow));transition:width .5s}
+/* lunchbox */
+.stage{display:flex;align-items:center;justify-content:center;min-height:0;position:relative}
+.mat{position:absolute;left:50%;top:50%;width:min(96%,1180px);height:96%;transform:translate(-50%,-50%) perspective(900px) rotateX(18deg);border-radius:1.2em;background:conic-gradient(#ff8a1f 25%,#2b2442 0 50%,#ff8a1f 0 75%,#2b2442 0) 0 0/4em 4em;box-shadow:0 .5em 1.2em rgba(0,0,0,.3);border:.4em solid #fff}
+#lb{position:relative;width:min(92%,1060px);height:92%;display:flex;flex-direction:column;justify-content:flex-end}
+.lid{height:20%;margin:0 4%;border-radius:1.2em 1.2em .3em .3em;background:linear-gradient(#ffa63d,#d9640a);border:.3em solid #8a3d00;position:relative;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.5em;text-shadow:0 .08em 0 rgba(0,0,0,.3)}
+.lid:before{content:"";position:absolute;top:-.55em;left:42%;width:16%;height:.7em;border:.3em solid #8a3d00;border-bottom:0;border-radius:.6em .6em 0 0}
+.base{height:78%;border-radius:.6em .6em 2em 2em;background:linear-gradient(#ffe27a,#ffc233);border:.3em solid #c48a00;padding:.7em;display:grid;grid-template-columns:1fr 1fr;gap:.7em;box-shadow:0 .5em 0 #c48a00,0 1em 1.2em rgba(0,0,0,.3)}
+.comp{border-radius:1.2em;border:.25em solid;padding:.4em;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;cursor:pointer;min-height:0}
+.comp h3{text-align:center;font-size:1.3em;line-height:1.1;margin-bottom:.3em;color:#fff;border-radius:.7em;padding:.25em .3em}
+#eat{background:#e4f7d8;border-color:var(--green)}#eat h3{background:var(--green)}
+#limit{background:#ffeccc;border-color:var(--orange)}#limit h3{background:var(--orange)}
+.comp.over{transform:scale(1.03);box-shadow:0 0 0 .3em #fff,0 0 0 .6em var(--blue)}
+.items{flex:1;display:flex;flex-wrap:wrap;gap:.4em;align-content:flex-start;justify-content:center;overflow:auto}
+/* cards */
+.card{width:6.4em;padding:.3em .2em;text-align:center;background:#fff;border:.2em solid #cfd8dc;border-radius:1em;box-shadow:0 .2em 0 rgba(0,0,0,.18);cursor:grab;user-select:none;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-3px)}
+.pic{font-size:2.6em;line-height:1.15;height:1.2em;display:flex;align-items:center;justify-content:center}
+.pic svg{height:1em;width:1em}
+.nm{font-weight:900}
+.card.sel{border-color:var(--blue);background:#e6f1ff;transform:scale(1.08)}
+.card.drag{opacity:.4}
+.card.shake{animation:shake .5s}
+.comp .card{width:5.2em;cursor:pointer}.comp .pic{font-size:1.9em}
+.card.pop{animation:pop .7s}
+@keyframes pop{0%{transform:scale(.3) rotate(-14deg)}55%{transform:scale(1.3) rotate(7deg);box-shadow:0 0 1.2em 0.4em var(--yellow)}100%{transform:scale(1)}}
+@keyframes shake{25%{transform:translateX(-12px)}75%{transform:translateX(12px)}}
+/* bottom */
+.bottom{display:grid;max-height:36vh;grid-template-columns:1.55fr 1fr .8fr;gap:.6em;align-items:stretch}
+.panel{background:rgba(255,255,255,.95);border:.2em solid #fff;border-radius:1.1em;padding:.5em .8em;box-shadow:0 .2em .6em rgba(0,0,0,.2);min-width:0}
+.tray{display:flex;flex-wrap:wrap;gap:.4em;justify-content:center;align-items:center;background:rgba(255,246,214,.96);border:.2em dashed var(--orange)}
+.tray .empty{font-weight:900;color:var(--green-d)}
+.panel h3{color:var(--blue);font-size:1em}
+.big{font-weight:900;font-size:1.2em}
+.hint{margin-top:.3em;padding:.2em .6em;background:#fff3c4;border-radius:.7em;font-weight:700}
+.sent{margin-top:.3em;padding:.2em .6em;background:#dff5e3;border-radius:.7em;font-weight:900;font-size:1.15em;color:var(--green-d)}
+.lang ul{margin:.2em 0 0;padding-left:1.1em;font-size:.9em}
+.ctrl{display:flex;flex-wrap:wrap;gap:.5em;justify-content:center;padding:.2em 0}
+.g{background:var(--green)}.y{background:var(--yellow);color:var(--ink)}.o{background:var(--orange)}.r{background:#5d6d7e}
+#finishBtn:not(:disabled){animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.1)}}
+#toast{position:fixed;left:50%;top:1em;transform:translate(-50%,-200%);max-width:92vw;padding:.5em 1.2em;border-radius:1em;font-weight:900;font-size:1.2em;color:#fff;background:var(--green);box-shadow:0 .3em 1em rgba(0,0,0,.3);transition:transform .35s;z-index:20;text-align:center}
+#toast.show{transform:translate(-50%,0)}#toast.bad{background:#d9531e}
+.overlay{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;text-align:center;padding:1em}
+#startScr{background:linear-gradient(rgba(88,183,240,.88),rgba(124,207,91,.9))}
+#doneScr{background:rgba(22,50,74,.78);overflow:hidden}
+.dlg{background:#fff;border-radius:2em;padding:1.2em 2em;border:.4em solid var(--yellow);box-shadow:0 .5em 2em rgba(0,0,0,.35);max-width:900px;position:relative;z-index:2}
+.dlg h1{font-size:3em;color:var(--green);line-height:1;text-shadow:.05em .05em 0 var(--yellow)}
+.dlg h2{font-size:3em;color:var(--orange);line-height:1}
+.dlg p{font-size:1.4em;font-weight:700;margin:.5em 0}
+.dlg .big-emoji{font-size:4em}
+.dlg button{font-size:1.5em;background:var(--green);padding:.4em 1.4em}
+.conf{position:absolute;top:-10vh;font-size:3.5vh;animation:fall linear forwards;z-index:1}
+@keyframes fall{to{transform:translateY(115vh) rotate(540deg)}}
+@media(max-width:900px){.bottom{grid-template-columns:1fr 1fr}.tray{grid-column:1/-1}}
+.tray .card{width:5.4em}.tray .pic{font-size:2.1em}
+.fs{background:var(--blue)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <div class="sun"></div><i class="star" style="left:0vw;top:0vh;animation-delay:-0s"></i><i class="star" style="left:37vw;top:23vh;animation-delay:-1s"></i><i class="star" style="left:74vw;top:0vh;animation-delay:-2s"></i><i class="star" style="left:13vw;top:23vh;animation-delay:-3s"></i><i class="star" style="left:50vw;top:0vh;animation-delay:-0s"></i><i class="star" style="left:87vw;top:23vh;animation-delay:-1s"></i><i class="star" style="left:26vw;top:0vh;animation-delay:-2s"></i><i class="star" style="left:63vw;top:23vh;animation-delay:-3s"></i><i class="star" style="left:2vw;top:0vh;animation-delay:-0s"></i><i class="star" style="left:39vw;top:23vh;animation-delay:-1s"></i><i class="star" style="left:76vw;top:0vh;animation-delay:-2s"></i><i class="star" style="left:15vw;top:23vh;animation-delay:-3s"></i><i class="star" style="left:52vw;top:0vh;animation-delay:-0s"></i><i class="star" style="left:89vw;top:23vh;animation-delay:-1s"></i><i class="star" style="left:28vw;top:0vh;animation-delay:-2s"></i><i class="star" style="left:65vw;top:23vh;animation-delay:-3s"></i><i class="star" style="left:4vw;top:0vh;animation-delay:-0s"></i><i class="star" style="left:41vw;top:23vh;animation-delay:-1s"></i><i class="star" style="left:78vw;top:0vh;animation-delay:-2s"></i><i class="star" style="left:17vw;top:23vh;animation-delay:-3s"></i><i class="star" style="left:54vw;top:0vh;animation-delay:-0s"></i><i class="star" style="left:91vw;top:23vh;animation-delay:-1s"></i><i class="star" style="left:30vw;top:0vh;animation-delay:-2s"></i><i class="star" style="left:67vw;top:23vh;animation-delay:-3s"></i><i class="star" style="left:6vw;top:0vh;animation-delay:-0s"></i><i class="star" style="left:43vw;top:23vh;animation-delay:-1s"></i>
+  <div class="ridge"></div>
+  <span class="orb" style="left:4vw;top:48vh;background:#f7c600;animation-delay:0s">⚡</span><span class="orb" style="left:90vw;top:52vh;background:#8fd3ff;animation-delay:-1s">🌀</span><span class="orb" style="left:10vw;top:66vh;background:#e8401c;animation-delay:-2s">🔥</span><span class="orb" style="left:84vw;top:70vh;background:#3fae4f;animation-delay:-3s">🍃</span><span class="orb" style="left:2vw;top:30vh;background:#9a6a3a;animation-delay:-4s">🪨</span><span class="orb" style="left:93vw;top:30vh;background:#2a8fe0;animation-delay:-2.5s">💧</span>
+</div>
+
+<div id="app">
+  <div class="head">
+    <h1>Fill BoBoiBoy’s Lunchbox! ⚡</h1>
+    <p>Think. Discuss. Agree. Then give advice!</p>
+    <div class="prog"><span id="progTxt">0 of 8 sorted</span><i><b id="progBar"></b></i></div>
+  </div>
+
+  <div class="stage">
+    <div class="mat" aria-hidden="true"></div>
+    <div id="lb">
+      <div class="lid">BOBOIBOY’S LUNCHBOX ⚡</div>
+      <div class="base">
+        <div class="comp" id="eat" data-zone="eat" tabindex="0" role="button" aria-label="He should eat or drink">
+          <h3>HE SHOULD EAT/DRINK</h3><div class="items"></div></div>
+        <div class="comp" id="limit" data-zone="limit" tabindex="0" role="button" aria-label="He shouldn't eat or drink too often">
+          <h3>HE SHOULDN'T EAT/DRINK TOO OFTEN</h3><div class="items"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="panel tray" id="tray" aria-label="Food tray"></div>
+    <div class="panel" id="talk" aria-live="polite"></div>
+    <div class="panel lang">
+      <h3>Say it together 💬</h3>
+      <ul>
+        <li>I think he should…</li>
+        <li>I think he shouldn't…</li>
+        <li>I agree because…</li>
+        <li>That's a good idea!</li>
+        <li>What should we put in his lunchbox?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ctrl" aria-label="Teacher controls">
+    <button class="g" id="cStart">START GAME</button>
+    <button class="y hidden" id="cHint">REVEAL HINT</button>
+    <button class="hidden" id="cSent">SHOW SENTENCE</button>
+    <button class="o hidden" id="cNext">NEXT QUESTION</button>
+    <button class="fs" id="cFs">FULL SCREEN</button>
+    <button class="r hidden" id="cReset">RESET GAME</button>
+    <button class="g hidden" id="finishBtn" disabled>FINISH CHALLENGE</button>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<div class="overlay" id="startScr">
+  <div class="dlg">
+    <div class="big-emoji" aria-hidden="true">⚡🍱🔥</div>
+    <h1>FILL BOBOIBOY’S LUNCHBOX!</h1>
+    <p>Help BoBoiBoy make healthier food choices!</p>
+    <button id="startBtn">START GAME</button>
+    <p style="font-size:1em;margin:.6em 0 0">Starting the game opens full screen. Press Esc to leave.</p>
+  </div>
+</div>
+
+<div class="overlay hidden" id="doneScr">
+  <div class="dlg">
+    <div class="big-emoji" aria-hidden="true">⚡🍎🔥</div>
+    <h2>WELL DONE!</h2>
+    <p>You helped BoBoiBoy make healthier food choices!</p>
+    <button id="again">PLAY AGAIN</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var FOODS=[
+{id:"apple",pic:"🍎",name:"Apple",zone:"eat",q:"Should BoBoiBoy eat an apple or sweets?",s:"He should eat an apple.",h:"It is a fruit. It gives us vitamins and fibre."},
+{id:"sweets",pic:"🍬",name:"Sweets",zone:"limit",q:"What shouldn't BoBoiBoy eat too often?",s:"He shouldn't eat too many sweets.",h:"They have a lot of sugar. Are they good every day?"},
+{id:"veg",pic:"🥦",name:"Vegetables",zone:"eat",q:"Why should BoBoiBoy eat vegetables?",s:"He should eat more vegetables.",h:"They come from plants. They help us grow strong."},
+{id:"burger",pic:"🍔",name:"Burger",zone:"limit",q:"What shouldn't BoBoiBoy eat too often?",s:"He shouldn't eat too many burgers.",h:"It is oily and salty. A burger sometimes is fine."},
+{id:"sandwich",pic:"🥪",name:"Sandwich",zone:"eat",q:"What should BoBoiBoy eat for lunch?",s:"He should eat a sandwich.",h:"Bread with a filling gives energy for lessons."},
+{id:"fizzy",pic:"🥤",name:"Soda",zone:"limit",q:"What shouldn't BoBoiBoy drink too often?",s:"He shouldn't drink too many sodas.",h:"It has bubbles and a lot of sugar."},
+{id:"water",pic:"💧",name:"Water",zone:"eat",q:"What should BoBoiBoy drink?",s:"He should drink water.",h:"Our bodies need it every day. It has no sugar."},
+{id:"choc",pic:"🍫",name:"Chocolate",zone:"limit",q:"What shouldn't BoBoiBoy eat too often?",s:"He shouldn't eat too much chocolate.",h:"It is sweet. A small piece sometimes is fine."}
+];
+var placed={},sel=null,hintOn=false,sentOn=false,started=false,dragId=null,tT;
+var $=function(i){return document.getElementById(i)};
+var byId=function(id){return FOODS.filter(function(f){return f.id===id})[0]};
+var count=function(){return Object.keys(placed).length};
+
+function toast(m,bad){var t=$("toast");t.textContent=m;t.className="show"+(bad?" bad":"");clearTimeout(tT);tT=setTimeout(function(){t.className=""},3500)}
+
+function cardEl(f,inComp,anim){
+  var d=document.createElement("div");
+  d.className="card"+(sel===f.id?" sel":"")+(anim?" pop":"");
+  d.tabIndex=0;d.dataset.id=f.id;d.setAttribute("role","button");d.setAttribute("aria-label",f.name);
+  d.innerHTML='<div class="pic">'+f.pic+'</div><div class="nm">'+f.name+'</div>';
+  if(!inComp){
+    d.draggable=true;
+    d.addEventListener("dragstart",function(e){dragId=f.id;e.dataTransfer.setData("text/plain",f.id);e.dataTransfer.effectAllowed="move";sel=f.id;hintOn=false;sentOn=false;talk();setTimeout(function(){d.classList.add("drag")},0)});
+    d.addEventListener("dragend",function(){dragId=null;d.classList.remove("drag");document.querySelectorAll(".comp").forEach(function(c){c.classList.remove("over")})});
+  }
+  d.addEventListener("click",function(e){
+    var cur=sel&&byId(sel);
+    if(inComp&&cur&&!placed[cur.id])return; /* pending card: let click reach the compartment */
+    e.stopPropagation();select(f.id);
+  });
+  d.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();d.click()}});
+  return d;
+}
+function select(id){if(!started)return;sel=id;hintOn=false;sentOn=false;render()}
+
+function render(lastId){
+  var tray=$("tray");tray.innerHTML="";
+  FOODS.forEach(function(f){if(!placed[f.id])tray.appendChild(cardEl(f,false))});
+  if(count()===8){var e=document.createElement("div");e.className="empty";e.textContent="🎉 The tray is empty! Press FINISH CHALLENGE.";tray.appendChild(e)}
+  ["eat","limit"].forEach(function(z){
+    var box=document.querySelector("#"+z+" .items");box.innerHTML="";
+    FOODS.forEach(function(f){if(placed[f.id]===z)box.appendChild(cardEl(f,true,f.id===lastId))});
+  });
+  var n=count();
+  $("progTxt").textContent=n+" of 8 sorted";
+  $("progBar").style.width=(n/8*100)+"%";
+  $("finishBtn").disabled=n<8;
+  talk();
+}
+
+function talk(){
+  var p=$("talk"),f=sel&&byId(sel),h="";
+  if(!started){h='<h3>Teacher</h3><p class="big">Press START GAME.</p>'}
+  else if(!f){h='<h3>Teacher</h3><p class="big">Click a food card, or press NEXT QUESTION.</p>'}
+  else if(!placed[f.id]){
+    h='<h3>Think. Discuss. Agree.</h3><p class="big">Where does “'+f.name+'” belong?</p><p>Drag it, or click the card, then click a compartment.</p>';
+    if(hintOn)h+='<div class="hint">💡 '+f.h+'</div>';
+  } else {
+    h='<h3>Speak!</h3><p class="big">'+f.q+'</p>';
+    h+=sentOn?'<div class="sent">🗣️ '+f.s+'</div>':'<p>Pupils answer first. Then press SHOW SENTENCE.</p>';
+  }
+  p.innerHTML=h;
+}
+
+function place(zone){
+  var f=sel&&byId(sel);
+  if(!started)return;
+  if(!f){toast("Choose a food card first.",true);return}
+  if(placed[f.id]){toast("That food is already in the lunchbox. Choose another card.",true);return}
+  if(f.zone===zone){
+    placed[f.id]=zone;hintOn=false;sentOn=false;render(f.id);
+    toast(count()===8?"All eight foods are sorted! Discuss, then press FINISH CHALLENGE.":(zone==="eat"?"Well done! "+f.name+" is a good choice.":"Well done! BoBoiBoy can have "+f.name.toLowerCase()+" sometimes, but not too often."));
+  } else {
+    var d=document.querySelector('#tray [data-id="'+f.id+'"]');
+    if(d){d.classList.remove("drag");d.classList.add("shake")}
+    hintOn=true;talk();
+    toast("Let's think again!",true);
+  }
+}
+
+function next(){
+  var s=sel?FOODS.indexOf(byId(sel)):-1;
+  for(var i=1;i<=8;i++){var f=FOODS[(s+i)%8];if(!placed[f.id]){select(f.id);return}}
+  toast("All eight foods are sorted!");
+}
+
+function reset(){placed={};sel=null;hintOn=false;sentOn=false;$("doneScr").classList.add("hidden");$("doneScr").querySelectorAll(".conf").forEach(function(c){c.remove()});render()}
+function fs(on){var d=document,e=d.documentElement;try{if(on===false||d.fullscreenElement){if(d.fullscreenElement)d.exitFullscreen()}else if(e.requestFullscreen){var r=e.requestFullscreen();if(r&&r.catch)r.catch(function(){toast("Full screen was blocked. Press F11 instead.",true)})}else toast("Press F11 for full screen.",true)}catch(x){toast("Press F11 for full screen.",true)}}
+function begin(){
+  if(!document.fullscreenElement)fs();
+  started=true;$("startScr").classList.add("hidden");$("cStart").classList.add("hidden");
+  ["cHint","cSent","cNext","cReset","finishBtn"].forEach(function(i){$(i).classList.remove("hidden")});
+  reset();
+}
+function finish(){
+  if(count()<8)return;
+  var s=$("doneScr");s.classList.remove("hidden");
+  var em=["🎉","⭐","🍎","🥦","💧","🌟","🥪","🎈"];
+  for(var i=0;i<36;i++){var c=document.createElement("span");c.className="conf";c.textContent=em[i%em.length];c.style.left=(Math.random()*96)+"vw";c.style.animationDuration=(2.5+Math.random()*3)+"s";c.style.animationDelay=(Math.random()*2)+"s";s.appendChild(c)}
+}
+
+document.querySelectorAll(".comp").forEach(function(c){
+  var z=c.dataset.zone;
+  c.addEventListener("dragover",function(e){e.preventDefault();e.dataTransfer.dropEffect="move";c.classList.add("over")});
+  c.addEventListener("dragleave",function(e){if(!c.contains(e.relatedTarget))c.classList.remove("over")});
+  c.addEventListener("drop",function(e){e.preventDefault();c.classList.remove("over");var id=e.dataTransfer.getData("text/plain")||dragId;if(id&&byId(id))sel=id;place(z)});
+  c.addEventListener("click",function(){place(z)});
+  c.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();place(z)}});
+});
+
+$("cFs").onclick=function(){fs()};$("startBtn").onclick=begin;$("cStart").onclick=begin;$("cReset").onclick=reset;$("again").onclick=reset;
+$("cNext").onclick=next;$("finishBtn").onclick=finish;
+$("cHint").onclick=function(){
+  var f=sel&&byId(sel);
+  if(!f){toast("Choose a food card first.",true);return}
+  if(placed[f.id]){toast("This food is already sorted. Try SHOW SENTENCE.",true);return}
+  hintOn=true;talk();
+};
+$("cSent").onclick=function(){
+  var f=sel&&byId(sel);
+  if(!f){toast("Choose a food card first.",true);return}
+  if(!placed[f.id]){toast("Sort the food first. Then show the sentence.",true);return}
+  sentOn=true;talk();
+};
+render();
+})();
+</script>
+</body>
+</html>
