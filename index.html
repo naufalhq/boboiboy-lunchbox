@@ -141,6 +141,7 @@ button:focus-visible,.card:focus-visible,.comp:focus-visible{outline:4px solid v
     <button class="hidden" id="cSent">SHOW SENTENCE</button>
     <button class="o hidden" id="cNext">NEXT QUESTION</button>
     <button class="fs" id="cFs">FULL SCREEN</button>
+    <button class="fs" id="cSnd">SOUND: ON 🔊</button>
     <button class="r hidden" id="cReset">RESET GAME</button>
     <button class="g hidden" id="finishBtn" disabled>FINISH CHALLENGE</button>
   </div>
@@ -180,6 +181,13 @@ var FOODS=[
 {id:"water",pic:"💧",name:"Water",zone:"eat",q:"What should BoBoiBoy drink?",s:"He should drink water.",h:"Our bodies need it every day. It has no sugar."},
 {id:"choc",pic:"🍫",name:"Chocolate",zone:"limit",q:"What shouldn't BoBoiBoy eat too often?",s:"He shouldn't eat too much chocolate.",h:"It is sweet. A small piece sometimes is fine."}
 ];
+var AC=null,snd=true;
+function ctx(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==="suspended")AC.resume();return AC}
+function tone(f,t0,d,type,v){var c=ctx();if(!c||!snd)return;var o=c.createOscillator(),g=c.createGain(),t=c.currentTime+t0;o.type=type||"sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.18,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.05)}
+function sfx(k){
+  var S={pick:[[660,0,.1]],ok:[[523,0,.16],[659,.1,.16],[784,.2,.3]],no:[[294,0,.2,"triangle"],[247,.18,.3,"triangle"]],start:[[392,0,.15],[523,.13,.15],[659,.26,.35]],done:[[523,0,.15],[659,.12,.15],[784,.24,.15],[1047,.36,.2],[784,.56,.12],[1047,.68,.12],[1319,.8,.5]]}[k]||[];
+  S.forEach(function(n){tone(n[0],n[1],n[2],n[3])});
+}
 var placed={},sel=null,hintOn=false,sentOn=false,started=false,dragId=null,tT;
 var $=function(i){return document.getElementById(i)};
 var byId=function(id){return FOODS.filter(function(f){return f.id===id})[0]};
@@ -194,7 +202,7 @@ function cardEl(f,inComp,anim){
   d.innerHTML='<div class="pic">'+f.pic+'</div><div class="nm">'+f.name+'</div>';
   if(!inComp){
     d.draggable=true;
-    d.addEventListener("dragstart",function(e){dragId=f.id;e.dataTransfer.setData("text/plain",f.id);e.dataTransfer.effectAllowed="move";sel=f.id;hintOn=false;sentOn=false;talk();setTimeout(function(){d.classList.add("drag")},0)});
+    d.addEventListener("dragstart",function(e){dragId=f.id;sfx("pick");e.dataTransfer.setData("text/plain",f.id);e.dataTransfer.effectAllowed="move";sel=f.id;hintOn=false;sentOn=false;talk();setTimeout(function(){d.classList.add("drag")},0)});
     d.addEventListener("dragend",function(){dragId=null;d.classList.remove("drag");document.querySelectorAll(".comp").forEach(function(c){c.classList.remove("over")})});
   }
   d.addEventListener("click",function(e){
@@ -205,7 +213,7 @@ function cardEl(f,inComp,anim){
   d.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();d.click()}});
   return d;
 }
-function select(id){if(!started)return;sel=id;hintOn=false;sentOn=false;render()}
+function select(id){if(!started)return;sfx("pick");sel=id;hintOn=false;sentOn=false;render()}
 
 function render(lastId){
   var tray=$("tray");tray.innerHTML="";
@@ -242,13 +250,13 @@ function place(zone){
   if(!f){toast("Choose a food card first.",true);return}
   if(placed[f.id]){toast("That food is already in the lunchbox. Choose another card.",true);return}
   if(f.zone===zone){
-    placed[f.id]=zone;hintOn=false;sentOn=false;render(f.id);
+    placed[f.id]=zone;hintOn=false;sentOn=false;sfx("ok");render(f.id);
     toast(count()===8?"All eight foods are sorted! Discuss, then press FINISH CHALLENGE.":(zone==="eat"?"Well done! "+f.name+" is a good choice.":"Well done! BoBoiBoy can have "+f.name.toLowerCase()+" sometimes, but not too often."));
   } else {
     var d=document.querySelector('#tray [data-id="'+f.id+'"]');
     if(d){d.classList.remove("drag");d.classList.add("shake")}
     hintOn=true;talk();
-    toast("Let's think again!",true);
+    sfx("no");toast("Let's think again!",true);
   }
 }
 
@@ -262,13 +270,13 @@ function reset(){placed={};sel=null;hintOn=false;sentOn=false;$("doneScr").class
 function fs(on){var d=document,e=d.documentElement;try{if(on===false||d.fullscreenElement){if(d.fullscreenElement)d.exitFullscreen()}else if(e.requestFullscreen){var r=e.requestFullscreen();if(r&&r.catch)r.catch(function(){toast("Full screen was blocked. Press F11 instead.",true)})}else toast("Press F11 for full screen.",true)}catch(x){toast("Press F11 for full screen.",true)}}
 function begin(){
   if(!document.fullscreenElement)fs();
-  started=true;$("startScr").classList.add("hidden");$("cStart").classList.add("hidden");
+  started=true;sfx("start");$("startScr").classList.add("hidden");$("cStart").classList.add("hidden");
   ["cHint","cSent","cNext","cReset","finishBtn"].forEach(function(i){$(i).classList.remove("hidden")});
   reset();
 }
 function finish(){
   if(count()<8)return;
-  var s=$("doneScr");s.classList.remove("hidden");
+  var s=$("doneScr");sfx("done");s.classList.remove("hidden");
   var em=["🎉","⭐","🍎","🥦","💧","🌟","🥪","🎈"];
   for(var i=0;i<36;i++){var c=document.createElement("span");c.className="conf";c.textContent=em[i%em.length];c.style.left=(Math.random()*96)+"vw";c.style.animationDuration=(2.5+Math.random()*3)+"s";c.style.animationDelay=(Math.random()*2)+"s";s.appendChild(c)}
 }
@@ -282,7 +290,7 @@ document.querySelectorAll(".comp").forEach(function(c){
   c.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();place(z)}});
 });
 
-$("cFs").onclick=function(){fs()};$("startBtn").onclick=begin;$("cStart").onclick=begin;$("cReset").onclick=reset;$("again").onclick=reset;
+$("cFs").onclick=function(){fs()};$("cSnd").onclick=function(){snd=!snd;this.textContent=snd?"SOUND: ON 🔊":"SOUND: OFF 🔇";if(snd)sfx("pick")};$("startBtn").onclick=begin;$("cStart").onclick=begin;$("cReset").onclick=reset;$("again").onclick=reset;
 $("cNext").onclick=next;$("finishBtn").onclick=finish;
 $("cHint").onclick=function(){
   var f=sel&&byId(sel);
